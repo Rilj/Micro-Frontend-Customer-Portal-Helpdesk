@@ -1,0 +1,10 @@
+{
+  "extends": "./react.json",
+  "compilerOptions": {
+    "types": ["vite/client"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true
+  }
+}

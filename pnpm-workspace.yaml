@@ -1,0 +1,12 @@
+workspaceRoot: .
+enablePrePostScripts: true
+packages:
+  - "packages/*"
+  - "apps/*"
+  - "services/*"
+  - "shared/*"
+allowBuilds:
+  '@nestjs/core': true
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  esbuild: true

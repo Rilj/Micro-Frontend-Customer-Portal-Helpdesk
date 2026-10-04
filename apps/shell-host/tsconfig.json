@@ -1,0 +1,13 @@
+{
+  "extends": "@mf-enterprise/ts-config/vite",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@mf-enterprise/event-bus": ["../../packages/event-bus/src"],
+      "@mf-enterprise/ui-components": ["../../packages/ui-components/src"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

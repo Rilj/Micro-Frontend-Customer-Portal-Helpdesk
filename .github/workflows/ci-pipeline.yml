@@ -1,0 +1,150 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Linting
+        run: pnpm lint
+
+      - name: Run Typecheck
+        run: pnpm typecheck
+
+  ci-pipeline:
+    name: Build & Test
+    needs: lint-and-typecheck
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [shell-host, remote-auth, remote-ticketing, remote-chat, remote-knowledgebase, auth-service, chat-service, knowledge-service]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+        if: contains(github.event.matrix.service, 'remote') || github.event.matrix.service == 'shell-host'
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+        if: contains(github.event.matrix.service, 'remote') || github.event.matrix.service == 'shell-host'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+        if: github.event.matrix.service == 'ticket-service'
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+        if: contains(github.event.matrix.service, 'remote') || github.event.matrix.service == 'shell-host'
+
+      - name: Run unit tests
+        run: pnpm --filter ${{ github.event.matrix.service }} test
+        if: contains(github.event.matrix.service, 'remote') || github.event.matrix.service == 'shell-host'
+
+      - name: Run typecheck
+        run: pnpm --filter ${{ github.event.matrix.service }} typecheck
+        if: contains(github.event.matrix.service, 'remote') || github.event.matrix.service == 'shell-host'
+
+      - name: Build
+        run: pnpm --filter ${{ github.event.matrix.service }} build
+        if: contains(github.event.matrix.service, 'remote') || github.event.matrix.service == 'shell-host'
+
+      - name: Run Go tests
+        run: |
+          cd services/ticket-service
+          go test ./...
+        if: github.event.matrix.service == 'ticket-service'
+
+      - name: Build Go binary
+        run: |
+          cd services/ticket-service
+          go build -o dist ./cmd/
+        if: github.event.matrix.service == 'ticket-service'
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run npm audit
+        run: pnpm audit --audit-level high
+        continue-on-error: true
+
+  e2e-tests:
+    name: E2E Tests
+    needs: ci-pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Start dev servers
+        run: |
+          pnpm --filter shell-host dev &
+          pnpm --filter remote-auth dev &
+          pnpm --filter remote-ticketing dev &
+          pnpm --filter remote-chat dev &
+          pnpm --filter remote-knowledgebase dev &
+          sleep 10
+
+      - name: Run E2E tests
+        run: pnpm --filter e2e-tests test
+        working-directory: tests/e2e
+
+      - name: Stop dev servers
+        if: always()
+        run: pkill -f vite || true

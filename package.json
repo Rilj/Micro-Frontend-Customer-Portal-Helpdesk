@@ -1,0 +1,31 @@
+{
+  "name": "micro-frontend-enterprise",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.14.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean",
+    "deploy": "turbo run deploy",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:rebuild": "docker-compose up -d --build"
+  },
+  "devDependencies": {
+    "turbo": "^2.1",
+    "typescript": "^5.6",
+    "tailwindcss": "^3.4",
+    "autoprefixer": "^10.4",
+    "postcss": "^8.4",
+    "pnpm": "^9.14"
+  }
+}

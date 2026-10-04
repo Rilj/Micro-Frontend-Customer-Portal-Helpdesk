@@ -1,0 +1,14 @@
+{
+  "name": "@mf-enterprise/types",
+  "version": "1.0.0",
+  "private": false,
+  "main": "./src/index.ts",
+  "files": ["src"],
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^2.1",
+    "typescript": "^5.6"
+  }
+}

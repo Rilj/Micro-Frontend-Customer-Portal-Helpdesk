@@ -1,0 +1,161 @@
+name: Docker Compose
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-mportal
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mportal
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./services/db/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-mportal
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./services/auth-service/Dockerfile
+    container_name: auth-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./services/auth-service/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/mportal?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ticket-service:
+    build:
+      context: .
+      dockerfile: ./services/ticket-service/Dockerfile
+    container_name: ticket-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./services/ticket-service/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/mportal?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: ./services/chat-service/Dockerfile
+    container_name: chat-service
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./services/chat-service/.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  knowledge-service:
+    build:
+      context: .
+      dockerfile: ./services/knowledge-service/Dockerfile
+    container_name: knowledge-service
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./services/knowledge-service/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/mportal?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  shell-host:
+    build:
+      context: .
+      dockerfile: ./apps/shell-host/Dockerfile
+    container_name: shell-host
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-service
+      - ticket-service
+      - chat-service
+      - knowledge-service
+
+  remote-auth:
+    build:
+      context: .
+      dockerfile: ./apps/remote-auth/Dockerfile
+    container_name: remote-auth
+    ports:
+      - "3003:80"
+
+  remote-ticketing:
+    build:
+      context: .
+      dockerfile: ./apps/remote-ticketing/Dockerfile
+    container_name: remote-ticketing
+    ports:
+      - "3001:80"
+
+  remote-chat:
+    build:
+      context: .
+      dockerfile: ./apps/remote-chat/Dockerfile
+    container_name: remote-chat
+    ports:
+      - "3002:80"
+
+  remote-knowledgebase:
+    build:
+      context: .
+      dockerfile: ./apps/remote-knowledgebase/Dockerfile
+    container_name: remote-knowledgebase
+    ports:
+      - "3004:80"
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf.template:/etc/nginx/templates/default.conf.template
+      - ./docker/certs:/etc/nginx/certs:ro
+    environment:
+      - NGINX_PORT=80
+      - NGINX_HOST=localhost
+    depends_on:
+      - shell-host
+      - auth-service
+      - ticket-service
+      - chat-service
+      - knowledge-service
+      - remote-auth
+      - remote-ticketing
+      - remote-chat
+      - remote-knowledgebase
+
+volumes:
+  pgdata:
+  redisdata:
