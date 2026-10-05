@@ -7,7 +7,7 @@ ENV GOSUMDB=off
 ENV GOFLAGS=-mod=mod
 
 COPY services/ticket-service/go.mod services/ticket-service/go.sum* ./
-RUN go mod download
+RUN apk add --no-cache git && go mod download
 
 COPY services/ticket-service .
 
