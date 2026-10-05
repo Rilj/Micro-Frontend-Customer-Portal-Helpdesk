@@ -35,18 +35,18 @@ server {
     }
 
     location /remotes/ {
-        proxy_pass http://shell-host:3000/remotes/;
+        proxy_pass http://shell-host:80/remotes/;
         proxy_set_header Host $host;
     }
 
     location / {
-        proxy_pass http://shell-host:3000;
+        proxy_pass http://shell-host:80;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /_next/static/ {
-        proxy_pass http://shell-host:3000/_next/static/;
+        proxy_pass http://shell-host:80/_next/static/;
     }
 }
