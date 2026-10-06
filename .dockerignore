@@ -13,3 +13,4 @@ tests
 .env.*
 .DS_Store
 .gitignore
+.turbo
