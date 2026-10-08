@@ -7,7 +7,7 @@ import { kbApi } from "../services/kb-api";
 import { eventBus } from "@mf-enterprise/event-bus";
 import { format } from "date-fns";
 
-export const ArticleDetail: React.FC = () => {
+const ArticleDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 

@@ -6,7 +6,7 @@ import { Search, Plus } from "lucide-react";
   import { Ticket, TicketStatus, TicketPriority } from "../types";
 import { formatDistanceToNow } from "date-fns";
 
-export const TicketList: React.FC = () => {
+const TicketList: React.FC = () => {
   const [search, setSearch] = useState("");
   const { filters, setFilters, clearFilters } = useTicketStore();
   const { data, isLoading, error } = useTickets({

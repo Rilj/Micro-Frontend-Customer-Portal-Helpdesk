@@ -10,7 +10,7 @@ interface DashboardStatsData {
   total: number;
 }
 
-export const DashboardStats: React.FC = () => {
+const DashboardStats: React.FC = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
@@ -73,3 +73,5 @@ export const DashboardStats: React.FC = () => {
     </div>
   );
 };
+
+export default DashboardStats;

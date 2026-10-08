@@ -3,7 +3,7 @@ import { Button, Input, Card, CardContent, CardHeader, CardTitle, Avatar, Avatar
 import { authApi } from "../services/auth";
 import { eventBus, User } from "@mf-enterprise/event-bus";
 
-export const ProfileSettings: React.FC = () => {
+const ProfileSettings: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");

@@ -7,7 +7,7 @@ import { useTicket, useTicketThreads, useAddThread } from "../hooks/use-tickets"
 import { formatDistanceToNow } from "date-fns";
 import { Send, Paperclip } from "lucide-react";
 
-export const TicketDetail: React.FC = () => {
+const TicketDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [newMessage, setNewMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);

@@ -6,7 +6,7 @@ import { Article } from "../types";
 import { eventBus } from "@mf-enterprise/event-bus";
 import { formatDistanceToNow } from "date-fns";
 
-export const ArticleList: React.FC = () => {
+const ArticleList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from "@mf-enterprise/ui-components";
 import { TicketPriority } from "../types";
 
-export const TicketForm: React.FC<{
+const TicketForm: React.FC<{
   initialData?: Partial<{ subject: string; description: string; priority: TicketPriority }>;
   onSubmit?: (data: { subject: string; description: string; priority: TicketPriority }) => void;
   onCancel?: () => void;
@@ -78,3 +78,5 @@ export const TicketForm: React.FC<{
     </Card>
   );
 };
+
+export default TicketForm;

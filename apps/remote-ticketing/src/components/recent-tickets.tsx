@@ -26,7 +26,7 @@ const getStatusColor = (status: TicketStatus) => {
   }
 };
 
-export const RecentTickets: React.FC = () => {
+const RecentTickets: React.FC = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["recent-tickets"],
     queryFn: async () => {
@@ -83,3 +83,5 @@ export const RecentTickets: React.FC = () => {
     </Card>
   );
 };
+
+export default RecentTickets;
