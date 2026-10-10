@@ -24,7 +24,16 @@ export default defineConfig(({ mode }) => {
           ticketingApp: remoteTicketing,
           chatApp: remoteChat,
           kbApp: remoteKb
-        }
+        },
+        shared: [
+          "react",
+          "react-dom",
+          "react-router-dom",
+          "zustand",
+          "@tanstack/react-query",
+          "@mf-enterprise/ui-components",
+          "@mf-enterprise/event-bus"
+        ]
       })
     ],
     server: {
@@ -40,6 +49,9 @@ export default defineConfig(({ mode }) => {
       commonjsOptions: {
         include: [/node_modules/]
       }
+    },
+    optimizeDeps: {
+      exclude: ["@mf-enterprise/event-bus"]
     },
     resolve: {
       alias: {

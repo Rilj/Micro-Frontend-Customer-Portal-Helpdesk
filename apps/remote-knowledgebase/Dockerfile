@@ -14,7 +14,7 @@ COPY apps/remote-knowledgebase/package.json ./apps/remote-knowledgebase/
 
 COPY apps/remote-knowledgebase ./apps/remote-knowledgebase
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 WORKDIR /app
 RUN pnpm --filter remote-knowledgebase build
