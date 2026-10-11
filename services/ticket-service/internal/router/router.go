@@ -15,15 +15,18 @@ func SetupRouter(cfg *config.Config, h *handler.TicketHandler) *gin.Engine {
 	r.Use(middleware.CORSMiddleware())
 
 	api := r.Group("/api")
-	api.Use(middleware.JWTAuthMiddleware(cfg.AccessSecret))
+	{
+		tickets := api.Group("/tickets")
+		tickets.GET("/stats", h.GetStats)
+		tickets.GET("/recent", h.GetRecentTickets)
+	}
 
+	api.Use(middleware.JWTAuthMiddleware(cfg.AccessSecret))
 	{
 		tickets := api.Group("/tickets")
 		{
 			tickets.GET("", h.ListTickets)
 			tickets.POST("", h.CreateTicket)
-			tickets.GET("/stats", h.GetStats)
-			tickets.GET("/recent", h.GetRecentTickets)
 			tickets.GET("/:id", h.GetTicket)
 			tickets.PUT("/:id", h.UpdateTicket)
 			tickets.DELETE("/:id", h.DeleteTicket)
