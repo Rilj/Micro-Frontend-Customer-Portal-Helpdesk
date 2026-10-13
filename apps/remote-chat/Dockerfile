@@ -25,6 +25,8 @@ COPY --from=builder /app/apps/remote-chat/dist/assets /usr/share/nginx/html/asse
 
 COPY apps/remote-chat/nginx.conf /etc/nginx/conf.d/default.conf
 
+RUN rm -f /usr/share/nginx/html/index.html /usr/share/nginx/html/50x.html
+
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
