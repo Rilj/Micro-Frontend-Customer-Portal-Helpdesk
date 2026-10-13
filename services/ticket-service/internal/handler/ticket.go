@@ -92,6 +92,9 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 	}
 
 	userID := c.GetString("user_id")
+	if userID == "" {
+		userID = generateUUID()
+	}
 
 	ticket := models.Ticket{
 		ID:            generateUUID(),
