@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
@@ -94,6 +94,11 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
 		userID = generateUUID()
+	}
+
+	if err := h.ensureGuestUser(userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create guest user", "error": err.Error()})
+		return
 	}
 
 	ticket := models.Ticket{
@@ -246,6 +251,14 @@ func (h *TicketHandler) GetRecentTickets(c *gin.Context) {
 }
 
 func generateUUID() string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return fmt.Sprintf("%x", r.Int63())
+	b := make([]byte, 16)
+	rand.Read(b)
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
+}
+
+func (h *TicketHandler) ensureGuestUser(userID string) error {
+	result := h.db.Exec("INSERT INTO users (id, email, password_hash, name, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW()) ON CONFLICT (id) DO NOTHING", userID, "guest_"+userID+"@example.com", "password_hash_placeholder", "Guest User", "customer", "active")
+	return result.Error
 }
